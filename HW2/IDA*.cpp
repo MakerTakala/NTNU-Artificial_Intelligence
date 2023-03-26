@@ -5,9 +5,11 @@
 using namespace std;
 
 int main() {
-    fstream in;
+    fstream in, out;
     in.open("./in/1.in", ios::in);
-    if(in.fail()) cout<<"file can't open."<<endl;
+    out.open("./out/1.out", ios::out);
+    if(in.fail()) cout<<"in file can't open."<<endl;
+    if(out.fail()) cout<<"out file can't open."<<endl;
     
     vector<int> board;
     int in_space;
@@ -17,5 +19,6 @@ int main() {
     
 
     in.close();
+    out.close();
     return 0;
 }
