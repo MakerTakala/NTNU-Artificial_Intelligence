@@ -1,15 +1,9 @@
-all: IDS IDA
+all: main
 
-IDS: IDS.cpp
-	g++ IDS.cpp -std=c++17 -o IDS
-IDA: IDA*.cpp
-	g++ IDA.cpp -std=c++17 -o IDA
+main: main.cpp algo.cpp
+	g++ main.cpp algo.cpp -std=c++17 -o main
 
-
-.PHONY:case clean run
-
-clean:
-	rm IDA IDS
+.PHONY:case
 
 case: 
 	python3 case_generator.py $(filter-out $@,$(MAKECMDGOALS))
