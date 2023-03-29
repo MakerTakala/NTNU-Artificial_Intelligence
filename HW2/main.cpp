@@ -1,54 +1,56 @@
 #include <fstream>
 #include <iostream>
+#include <bitset>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include "algo.h"
+#include "./lib/help.h"
+#include "./lib/ids.h"
+#include "./lib/ida.h"
 
 using namespace std;
 
-fstream open_file(string file_path, ios_base::openmode permittion);
-
 int main(int argc, char *argv[]) {
-
     for(int i = 1; ; i++) {
+        // load input data
         fstream in = open_file("./in/" + to_string(i) + ".in", ios::in);
-        if(in.fail()) {
-            break;
-        }
+        if(in.fail()) break;
 
-        string str;
-        int in_space;
-        while(in>>in_space) {
-            str += to_string(in_space);
-        }
-        bitset<1000> board(str); 
+        // read input
+        int size = 0;
+        bitset<MAX_SIZE> board = read_in_file(in, size);
         in.close();
 
-
-        fstream out = open_file("./out/" + to_string(i) + ".out", ios::out);
-        if(string(argv[0]) == "IDS") {
-            IDS(board, str.length(), out);
+        // choose algorithm by argv
+        vector<int> ans;
+        if(argc == 0) {
+            cout<<"Please input an algorithm!"<<endl;
+            break;
         }
-        else if(string(argv[0]) == "IDA") {
-            IDA(board, str.length(), out);
+        else if(string(argv[1]) == "IDS") {
+            ans = IDS(board, size);
+        }
+        else if(string(argv[1]) == "IDA") {
+            ans = IDA(board, size);
         }
         else {
-            cout<<"doesn't support algorithm!"<<endl;
+            cout<<"doesn't support this algorithm!"<<endl;
             break;
+        }
+        
+        // write the answer to out file
+        fstream out = open_file("./out/" + to_string(i) + ".out", ios::out);
+        for(int x : ans) {
+            out<<x<<" ";
         }
         out.close();
     }  
     
+    // count time and memory usage
     rusage usage;
     getrusage(RUSAGE_SELF, &usage);
     cout<<endl;
-    cout<<"Usage time: "<<usage.ru_utime.tv_usec<<" ms"<<endl;
+    cout<<"Usage time: "<<usage.ru_utime.tv_sec<<"s."<<usage.ru_stime.tv_usec<<endl;
     cout<<"Usage memory: "<<usage.ru_maxrss<<" byte"<<endl;
     return 0;
 }
 
-fstream open_file(string file_path, ios_base::openmode permittion) {
-    fstream file;
-    file.open(file_path, permittion);
-    return file;
-}
