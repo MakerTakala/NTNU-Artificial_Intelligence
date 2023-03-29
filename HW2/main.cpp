@@ -12,7 +12,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
     for(int i = 1; ; i++) {
         // load input data
-        fstream in = open_file("./in/" + to_string(i) + ".in", ios::in);
+        fstream in = open_file("./data/in/" + to_string(i) + ".in", ios::in);
         if(in.fail()) break;
 
         // read input
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         }
         
         // write the answer to out file
-        fstream out = open_file("./out/" + to_string(i) + ".out", ios::out);
+        fstream out = open_file("./data/out/" + to_string(i) + ".out", ios::out);
         for(int x : ans) {
             out<<x<<" ";
         }

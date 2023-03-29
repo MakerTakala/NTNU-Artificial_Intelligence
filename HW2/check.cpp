@@ -9,7 +9,7 @@ int main() {
 
     for(int i = 1; ; i++) {
         // load input data
-        fstream in = open_file("./in/" + to_string(i) + ".in", ios::in);
+        fstream in = open_file("./data/in/" + to_string(i) + ".in", ios::in);
         if(in.fail()) break;
 
         // read input
@@ -17,7 +17,7 @@ int main() {
         bitset<MAX_SIZE> board = read_in_file(in, size);
         in.close();
 
-        fstream out = open_file("./out/" + to_string(i) + ".out", ios::in);
+        fstream out = open_file("./data/out/" + to_string(i) + ".out", ios::in);
         if(out.fail()) break;
         vector<int> ans = read_out_file(out);
         out.close();
