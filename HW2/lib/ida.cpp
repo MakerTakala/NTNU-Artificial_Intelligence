@@ -9,9 +9,7 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
     if(board == 0) return 0;
     
     // over the limited deep
-    if(deep < 0) {
-        return deep;
-    }
+    if(deep < 0) return deep;
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
@@ -47,5 +45,5 @@ vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
         if(deep_update == 0) return ans;
         deep -= deep_update;
     }
-    return ans;
+    return vector<int>();
 }

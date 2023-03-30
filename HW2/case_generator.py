@@ -1,4 +1,5 @@
 import sys, random, os, glob
+from optparse import OptionParser
  
 filelist1 = glob.glob(os.path.join("./data/in", "*"))
 for f in filelist1:
@@ -7,14 +8,31 @@ filelist2 = glob.glob(os.path.join("./data/out", "*"))
 for f in filelist2:
     os.remove(f)
 
-for i in range(int(sys.argv[1])):
+
+
+parser = OptionParser()
+
+parser.add_option('-t', '--testcase', action='store', dest='testcase', type='int', default=10, help='the number of testcase')
+parser.add_option('-s', '--space', action='store', dest='space', type='int', default=0, help='the board size')
+parser.add_option('-c', '--cells', action='store', dest='cells', type='int', default=0, help='the number of cells')
+
+(options, args) = parser.parse_args(sys.argv)
+
+
+for i in range(options.testcase):
     in_file = open("./data/in/" + str(i + 1) + ".in", mode="w")
 
-    for j in range(random.randint(3, 7)):
-        d = random.randint(0, 1)
-        in_file.write(str(d) + " ")
+    if options.space == 0:
+        options.space = random.randint(3, 20)
+    if options.cells == 0:
+        options.space = random.randint(3, options.space)
 
-
+    cells = random.sample([x for x in range(0, options.space, 1)], options.cells)
+    data = [0 for x in range(options.space)]
+    for j in cells:
+        data[j] = 1
+    for x in data:
+        in_file.write(str(x) + " ")
 
 
 

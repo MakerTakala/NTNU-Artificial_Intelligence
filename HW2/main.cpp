@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
         unsigned long long int ns = 1000000;
         unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
         cout<<"Usage time: "<<usage / ns<<"."<<usage % ns<<"s"<<endl;
-        cout<<"Usage memory: "<<end.ru_maxrss<<" kb"<<endl<<endl;
     }  
     
     return 0;
