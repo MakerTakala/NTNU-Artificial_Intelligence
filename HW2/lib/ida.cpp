@@ -1,54 +1,39 @@
 #include "./ida.h"
 
-class State {
-    public:
+int heurstic(bitset<MAX_SIZE> board) {
+    return board.count();
+}
 
-    bitset<MAX_SIZE> board;
-    vector<int> ans;
-    int priority;
-    int left;
-    int deep;
-    int size;
-
-    State(bitset<MAX_SIZE> _board, vector<int> _ans, int _deep, int _size) {
-        board = _board;
-        ans = _ans;
-        priority = estimate_priority();
-        left = _board.count();
-        deep = _deep;
-        size = _size;
+int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
+    // when all cell has been wipe out, find answer
+    if(board == 0) return 0;
+    
+    // over the limited deep
+    if(deep < 0) {
+        return deep;
     }
 
-    int estimate_priority() {
-        return spilt(this->board, size).count();
-    }
+    // suppose all cell is split
+    bitset<MAX_SIZE> next_board = spilt(board, size);
+    
+    // use deep_update to record the maxinum change
+    int deep_update = INT_MIN;
+    // try to wipe out each cell
+    for(int i = 0; i < size; i++) {
+        bitset<MAX_SIZE> rm_board(next_board);
+        if(board[i] == 1) {
+            // if a cell be wipe out, recover the board 
+            bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
+            ans.push_back(i + 1);
 
-    bool operator> (const State &that) const{
-        return this->left + this->priority > that.left + that.priority;
-    }
-
-};
-
-vector<int> IDA_search(bitset<MAX_SIZE> board, int deep, int size) {
-    priority_queue<State, vector<State>, greater<State>> pq;
-    pq.push(State(board, vector<int>(), deep, size));
-    while(!pq.empty()) {
-        int size = pq.size();
-        while(size--) {
-            State top = pq.top(); pq.pop();
-            bitset<MAX_SIZE> next_board = spilt(top.board, size);
-            vector<int> ans = top.ans;
-            for(int i = 0; i < size; i++) {
-                if(top.board[i] == 1) {
-                    bitset<MAX_SIZE> rm_board = recover(top.board, next_board, size, i);
-                    ans.push_back(i);
-                    pq.push(State(rm_board, ans, top.deep - 1, size));
-                    ans.pop_back();
-                }
-            }
+            int deep_diff = IDA_search(rec_board, ans, deep - (1 + heurstic(rec_board)), size);
+            if(deep_diff == 0) return 0;
+            
+            deep_update = max(deep_update, deep_diff);
+            ans.pop_back();
         }
     }
-    return vector<int>();
+    return deep_update;
 }
 
 // run the IDA algorithm
@@ -57,9 +42,10 @@ vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
 
     //iterate the deep
     vector<int> ans;
-    for(int deep = board.count(); ; deep += 3) {
-        cout<<"deep: "<<deep<<endl;
-        IDA_search(board, deep, size);
+    for(int deep = 1; ;) {
+        int deep_update= IDA_search(board, ans, deep, size);
+        if(deep_update == 0) return ans;
+        deep -= deep_update;
     }
     return ans;
 }

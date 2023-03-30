@@ -31,9 +31,9 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     if(size == 1) return vector<int>{1};
     
     //iterate the deep
-    vector<int> ans, tmp;
+    vector<int> ans;
     for(int deep = board.count(); ; deep += 1) {
-        if(IDS_search(board, ans, deep, size)) break;
+        if(IDS_search(board, ans, deep, size)) return ans;
     }
-    return ans;
+    return vector<int>();
 }
