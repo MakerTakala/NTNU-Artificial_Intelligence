@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
         // load input data
         fstream in = open_file("./data/in/" + to_string(i) + ".in", ios::in);
         if(in.fail()) break;
+        cout<<"======CASE: "<<i<<"======"<<endl;
 
         // read input
         int size = 0;

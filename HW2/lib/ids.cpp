@@ -43,7 +43,7 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     
     //iterate the deep
     vector<int> ans, tmp;
-    for(int deep = board.count(); ; deep += 3) {
+    for(int deep = board.count(); ; deep += 1) {
         cout<<"deep: "<<deep<<endl;
         if(IDS_search(board, ans, tmp, deep, size)) break;
     }

@@ -65,6 +65,7 @@
         "variant": "cpp",
         "algorithm": "cpp",
         "filesystem": "cpp",
-        "ids.h": "c"
+        "ids.h": "c",
+        "queue": "cpp"
     }
 }
