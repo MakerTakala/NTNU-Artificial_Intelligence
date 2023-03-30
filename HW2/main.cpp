@@ -47,11 +47,12 @@ int main(int argc, char *argv[]) {
         
         // write the answer to out file
         fstream out = open_file("./data/out/" + to_string(i) + ".out", ios::out);
+        cout<<"Ans: ";
         for(int x : ans) {
             out<<x<<" ";
             cout<<x<<" ";
         }
-        cout<<endl<<endl;
+        cout<<endl;
         out.close();
 
         // record end time and memory
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]) {
 
         unsigned long long int ns = 1000000;
         unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
-        cout<<"Usage time: "<<usage / ns<<"."<<usage % ns<<"s"<<endl;
+        cout<<"Usage time: "<<usage / ns<<"."<<usage % ns<<"s"<<endl<<endl;
     }  
     
     return 0;
