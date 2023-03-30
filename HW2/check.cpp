@@ -22,11 +22,15 @@ int main() {
         vector<int> ans = read_out_file(out);
         out.close();
        
-        cout<<"Case "<<i<<": "<<board<<endl;
+        cout<<"Case "<<i<<": ";
+        for(int i = 0; i < size; i++) cout<<board[i];
+        cout<<endl;
         for(int step : ans) {
             board[step - 1] = 0;
             board = spilt(board, size);
-            cout<<"\t"<<step<<" : "<<board<<endl;
+            cout<<"\t"<<step<<" : ";
+            for(int i = 0; i < size; i++) cout<<board[i];
+                cout<<endl;
         }
 
         if(board == 0) cout<<"AC!"<<endl;
