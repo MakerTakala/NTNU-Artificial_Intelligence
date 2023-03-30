@@ -18,14 +18,14 @@ parser.add_option('-c', '--cells', action='store', dest='cells', type='int', def
 
 (options, args) = parser.parse_args(sys.argv)
 
+if options.space == 0:
+    options.space = random.randint(3, 10)
+if options.cells == 0:
+    options.cells = random.randint(3, options.space)
+
 
 for i in range(options.testcase):
     in_file = open("./data/in/" + str(i + 1) + ".in", mode="w")
-
-    if options.space == 0:
-        options.space = random.randint(3, 20)
-    if options.cells == 0:
-        options.space = random.randint(3, options.space)
 
     cells = random.sample([x for x in range(0, options.space, 1)], options.cells)
     data = [0 for x in range(options.space)]
