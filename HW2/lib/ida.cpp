@@ -6,8 +6,8 @@ int heurstic(bitset<MAX_SIZE> board) {
 
 int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
     // when all cell has been wipe out, find answer
-    if(board == 0) return 0;
-    
+    if(board == 0 || cross_01_judge(board, ans, size)) return 0;
+
     // over the limited deep
     if(deep < 0) return deep;
 

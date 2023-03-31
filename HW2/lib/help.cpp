@@ -18,6 +18,15 @@ bitset<MAX_SIZE> read_in_file(fstream &in, int &size) {
     return bitset<MAX_SIZE>(str); 
 }
 
+vector<int> read_out_file(fstream &out) {
+    vector<int> ans;
+    int x;
+    while(out>>x) {
+        ans.push_back(x);
+    }
+    return ans;
+}
+
 // use to simulate all cells split
 bitset<MAX_SIZE> spilt(bitset<MAX_SIZE> board, int size) {
     bitset<MAX_SIZE> next_board(0);
@@ -44,12 +53,35 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
     return rec_board;
 }
 
+bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size) {
+    int right = 0, left = size - 1;
+    while(!board[right]) right++;
+    while(!board[left]) left--;
 
-vector<int> read_out_file(fstream &out) {
-    vector<int> ans;
-    int x;
-    while(out>>x) {
-        ans.push_back(x);
+    if(right == left) {
+        ans.push_back(left);
+        return true;
     }
-    return ans;
+
+    for(int i = right; i < left; i++) {
+        if((board[i] ^ board[i - 1]) == 0) return false;
+    }
+
+    for(int x : ans) cout<<x<<" ";
+    cout<<"find!! "<<board<<endl;
+
+
+    int right_space = right, left_space = size - 1 - left;
+    if(right_space >= left_space)  {
+        for(int i = right; i <= size - 2; i++) {
+            ans.push_back(i);
+        }
+    }
+    else {
+        for(int i = left; i >= 2; i--) {
+            ans.push_back(i);
+        }
+    }
+    return true;
 }
+
