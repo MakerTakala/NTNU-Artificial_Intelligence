@@ -22,7 +22,7 @@ int main() {
         vector<int> ans = read_out_file(out);
         out.close();
        
-        cout<<"Case "<<i<<": ";
+        cout<<"Case "<<i<<": "<<endl;
         for(int i = 0; i < size; i++) cout<<board[i];
         cout<<endl;
         for(int step : ans) {
@@ -30,11 +30,19 @@ int main() {
             board = spilt(board, size);
             cout<<"\t"<<step<<" : ";
             for(int i = 0; i < size; i++) cout<<board[i];
-                cout<<endl;
+            cout<<endl;
         }
 
-        if(board == 0) cout<<"AC!"<<endl;
-        else cout<<"WA!"<<endl;
+        fstream result = open_file("./data/result.txt", ios::out);
+        if(board == 0) {
+            cout<<"AC!"<<endl;
+            result<<"AC";
+        }
+        else {
+            cout<<"WA!"<<endl;
+            result<<"WA";
+        }
+        
     }  
 
     return 0;

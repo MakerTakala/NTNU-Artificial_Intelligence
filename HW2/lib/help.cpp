@@ -12,7 +12,7 @@ bitset<MAX_SIZE> read_in_file(fstream &in, int &size) {
     string str;
     int in_space;
     while(in>>in_space) {
-        str += to_string(in_space);
+        str = to_string(in_space) + str;
     }
     size = str.length();
     return bitset<MAX_SIZE>(str); 
@@ -53,33 +53,32 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
     return rec_board;
 }
 
-bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size) {
+bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep) {
     int right = 0, left = size - 1;
     while(!board[right]) right++;
     while(!board[left]) left--;
 
     if(right == left) {
-        ans.push_back(left);
+        ans.push_back(left + 1);
         return true;
     }
 
-    for(int i = right; i < left; i++) {
+    for(int i = right + 1; i <= left; i++) {
         if((board[i] ^ board[i - 1]) == 0) return false;
     }
 
-    for(int x : ans) cout<<x<<" ";
-    cout<<"find!! "<<board<<endl;
-
-
     int right_space = right, left_space = size - 1 - left;
+
     if(right_space >= left_space)  {
+        if(size - right - 1 > deep + 1) return false;
         for(int i = right; i <= size - 2; i++) {
-            ans.push_back(i);
+            ans.push_back(i + 1);
         }
     }
     else {
-        for(int i = left; i >= 2; i--) {
-            ans.push_back(i);
+        if(left > deep + 1) return false;
+        for(int i = left; i >= 1; i--) {
+            ans.push_back(i + 1);
         }
     }
     return true;

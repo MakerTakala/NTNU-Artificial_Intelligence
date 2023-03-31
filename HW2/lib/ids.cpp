@@ -4,7 +4,7 @@
 // an IDS DFS
 bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
     // when all cell has been wipe out, find answer
-    if(board == 0 || cross_01_judge(board, ans, size)) return true;
+    if(board == 0 || cross_01_judge(board, ans, size, deep)) return true;
     
     // over the limited deep
     if(deep == 0) return false;
@@ -32,7 +32,7 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     
     //iterate the deep
     vector<int> ans;
-    for(int deep = board.count(); ; deep += 1) {
+    for(int deep = 1; ; deep += 1) {
         if(IDS_search(board, ans, deep, size)) return ans;
     }
     return vector<int>();
