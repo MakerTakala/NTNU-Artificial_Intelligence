@@ -4,12 +4,15 @@ int heurstic(bitset<MAX_SIZE> board) {
     return board.count();
 }
 
-int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
+int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_set<bitset<MAX_SIZE>> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
-    if(board == 0) return 0;
+    if(board == 0 || cross_01_judge(board, ans, size, deep)) return 0;
 
     // over the limited deep
     if(deep < 0) return deep;
+
+    if(same.count(board)) return INT_MIN;
+    same.insert(board);
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
@@ -24,7 +27,7 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
             bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
             ans.push_back(i + 1);
 
-            int deep_diff = IDA_search(rec_board, ans, deep - (1 + heurstic(rec_board)), size);
+            int deep_diff = IDA_search(rec_board, ans, same, deep - (1 + heurstic(rec_board)), size);
             if(deep_diff == 0) return 0;
             
             deep_update = max(deep_update, deep_diff);
@@ -41,7 +44,8 @@ vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
     //iterate the deep
     vector<int> ans;
     for(int deep = 1; ;) {
-        int deep_update= IDA_search(board, ans, deep, size);
+        unordered_set<bitset<MAX_SIZE>> same;
+        int deep_update= IDA_search(board, ans, same, deep, size);
         if(deep_update == 0) return ans;
         deep -= deep_update;
     }

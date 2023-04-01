@@ -4,8 +4,9 @@
 #include <bitset>
 #include <iostream>
 #include <vector>
+#include <unordered_set>
 
-#define MAX_SIZE 50
+#define MAX_SIZE 60
 
 using namespace std;
 

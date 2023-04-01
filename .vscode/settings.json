@@ -66,6 +66,7 @@
         "algorithm": "cpp",
         "filesystem": "cpp",
         "ids.h": "c",
-        "queue": "cpp"
+        "queue": "cpp",
+        "unordered_set": "cpp"
     }
 }

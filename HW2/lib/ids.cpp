@@ -2,12 +2,15 @@
 #include "./help.h"
 
 // an IDS DFS
-bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
+bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_set<bitset<MAX_SIZE>> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
     if(board == 0 || cross_01_judge(board, ans, size, deep)) return true;
     
     // over the limited deep
     if(deep == 0) return false;
+
+    if(same.count(board)) return false;
+    same.insert(board);
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
@@ -19,7 +22,7 @@ bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
             // if a cell be wipe out, recover the board 
             bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
             ans.push_back(i + 1);
-            if(IDS_search(rec_board, ans, deep - 1, size)) return true;
+            if(IDS_search(rec_board, ans, same, deep - 1, size)) return true;
             ans.pop_back();
         }
     }
@@ -33,7 +36,8 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     //iterate the deep
     vector<int> ans;
     for(int deep = 1; ; deep += 1) {
-        if(IDS_search(board, ans, deep, size)) return ans;
+        unordered_set<bitset<MAX_SIZE>> same;
+        if(IDS_search(board, ans, same, deep, size)) return ans;
     }
     return vector<int>();
 }
