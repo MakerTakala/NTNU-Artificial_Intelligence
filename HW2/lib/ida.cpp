@@ -1,12 +1,13 @@
 #include "./ida.h"
 
 int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
-    // when all cell has been wipe out, find answer
-    if(board == 0 || cross_01_judge(board, ans, size, deep, false)) return 0;
-
     // over the limited deep
     if(deep < 0) return deep;
 
+    // when all cell has been wipe out, find answer
+    if(board == 0) return 0;
+
+    if(!same.count(board.to_ullong())) same[board.to_ullong()] = INT_MIN;
     if(same[board.to_ullong()] >= deep) return INT_MIN;
     same[board.to_ullong()] = deep;
 
@@ -39,11 +40,11 @@ vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
 
     //iterate the deep
     vector<int> ans;
-    for(int deep = 1; ;) {
+    for(int deep = 1; ;deep++) {
         unordered_map<unsigned long long int, int> same;
         int deep_update= IDA_search(board, ans, same, deep, size);
         if(deep_update == 0) return ans;
-        deep -= deep_update;
+        //deep -= deep_update;
     }
     return vector<int>();
 }

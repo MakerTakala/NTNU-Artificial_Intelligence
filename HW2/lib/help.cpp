@@ -57,7 +57,7 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
     return rec_board;
 }
 
-bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep, bool is_IDA) {
+int cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep) {
     // filp the board
     // why? beacuse I forget right and left should reverse but I don't want to fix all right and left
     for(int i = 0; i < size / 2; i++) {
@@ -141,10 +141,12 @@ bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep
         }
     }
 
-    if(is_IDA && tmp_ans.size() + heurstic(board) > deep + 1) return false;
-    if(!is_IDA && tmp_ans.size() > deep + 1) return false;
-    for(int x : tmp_ans)
+    if((int)tmp_ans.size() > deep) return false;
+    
+    for(int x : tmp_ans) {
+        cout<<x<<" ";
         ans.push_back(x);
+    }
 
     return true;
 }
