@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 
         // choose algorithm by argv
         vector<int> ans;
+
         if(string(argv[1]) == "IDS") {
             ans = IDS(board, size);
         }

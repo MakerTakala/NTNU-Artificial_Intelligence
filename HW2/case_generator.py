@@ -19,7 +19,7 @@ parser.add_option('-c', '--cells', action='store', dest='cells', type='int', def
 (options, args) = parser.parse_args(sys.argv)
 
 if options.space == 0:
-    options.space = random.randint(3, 60)
+    options.space = random.randint(20, 60)
 if options.cells == 0:
     options.cells = random.randint(3, options.space)
 

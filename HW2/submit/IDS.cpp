@@ -2,6 +2,7 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
+#include <unordered_map>
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -18,10 +19,11 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
 bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep);
 
 
+
 int main(int argc, char *argv[]) {
 
     // load input data
-    fstream in = open_file("./input.txt", ios::in);
+    fstream in = open_file("../data/in/1.in", ios::in);
     if(in.fail()) return 0;
 
     // read input
@@ -43,7 +45,7 @@ int main(int argc, char *argv[]) {
     unsigned long long int ns = 1000000;
     unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
 
-    fstream out = open_file("c:\\output.txt", ios::out);
+    fstream out = open_file("../data/out/1.out", ios::out);
     out<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds."<<endl;
     if(ans.size() != 0) {
         out<<"An optional solution has "<<ans.size()<<" moves:"<<endl;
@@ -58,12 +60,15 @@ int main(int argc, char *argv[]) {
 }
 
 // an IDS DFS
-bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
+bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
     if(board == 0 || cross_01_judge(board, ans, size, deep)) return true;
     
     // over the limited deep
     if(deep == 0) return false;
+
+    if(same[board.to_ullong()] >= deep) return false;
+    same[board.to_ullong()] = deep;
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
@@ -75,7 +80,7 @@ bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size) {
             // if a cell be wipe out, recover the board 
             bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
             ans.push_back(i + 1);
-            if(IDS_search(rec_board, ans, deep - 1, size)) return true;
+            if(IDS_search(rec_board, ans, same, deep - 1, size)) return true;
             ans.pop_back();
         }
     }
@@ -89,7 +94,8 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     //iterate the deep
     vector<int> ans;
     for(int deep = 1; ; deep += 1) {
-        if(IDS_search(board, ans, deep, size)) return ans;
+        unordered_map<unsigned long long int, int> same;
+        if(IDS_search(board, ans, same, deep, size)) return ans;
     }
     return vector<int>();
 }
@@ -139,32 +145,93 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
 }
 
 bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep) {
-    int right = 0, left = size - 1;
-    while(!board[right]) right++;
-    while(!board[left]) left--;
-
-    if(right == left) {
-        ans.push_back(left + 1);
-        return true;
+    // filp the board
+    // why? beacuse I forget right and left should reverse but I don't want to fix all right and left
+    for(int i = 0; i < size / 2; i++) {
+        board[i] = board[i] ^ board[size - i - 1];
+        board[size - i - 1] = board[i] ^ board[size - i - 1];
+        board[i] = board[i] ^ board[size - i - 1];
     }
 
-    for(int i = right + 1; i <= left; i++) {
+    int left = 0, right = size - 1;
+    while(board[left] == board[0]) left++;
+    while(board[right] == board[size - 1]) right--;
+    
+    if(left > right) return false;
+    
+    for(int i = left + 1; i <= right; i++) {
         if((board[i] ^ board[i - 1]) == 0) return false;
     }
 
-    int right_space = right, left_space = size - 1 - left;
+    bool left_all_0 = true, right_all_0 = true;
+    if(left != 0 && board[0] == 1) {
+        left_all_0 = false;
+        left--;
+    }
+    if(right != size - 1 && board[size - 1] == 1) {
+        right_all_0 = false;
+        right++;
+    }
 
-    if(right_space >= left_space)  {
-        if(size - right - 1 > deep + 1) return false;
-        for(int i = right; i <= size - 2; i++) {
-            ans.push_back(i + 1);
+    vector<int> tmp_ans;
+
+    // 111 10101 111
+    if(left_all_0 == false && right_all_0 == false) {
+        int left_1_size = left, right_1_size = size - 1 - right;
+        if(left_1_size <= right_1_size) {
+            for(int i = left - 1; i >= 1; i--) {
+                tmp_ans.push_back(size - i);
+                left--;
+                right--;
+            }
+            left_all_0 = true;
+        }
+        else {
+            for(int i = right + 1; i <= size - 2; i++) {
+                tmp_ans.push_back(size - i);
+                left++;
+                right++;
+            }
+            right_all_0 = true;
+        }
+    }
+    // 111111 10101  or  111 10101 000
+    if(left_all_0 == false && right_all_0 == true) {
+        for(int i = left - 1; i >= 1; i--) {
+            tmp_ans.push_back(size - i);
+            left--;
+            if(right == size - 1) right = size - 2;
+            else right++;
+        }
+    }
+
+    // 10101 111111  or  000 10101 111
+    if(left_all_0 == true && right_all_0 == false) {
+        for(int i = right + 1; i <= size - 2; i++) {
+            tmp_ans.push_back(size - i);
+            right++;
+            if(left == 0) left = 1;
+            else left--;
+        }
+        
+    }
+    
+    // 000 10101 000
+    if(left <= size - 1 - right)  {
+        for(int i = left; i <= size - 2; i++) {
+            tmp_ans.push_back(size - i);
         }
     }
     else {
-        if(left > deep + 1) return false;
-        for(int i = left; i >= 1; i--) {
-            ans.push_back(i + 1);
+        for(int i = right; i >= 1; i--) {
+            tmp_ans.push_back(size - i);
         }
     }
+
+    if(tmp_ans.size() > deep + 1) return false;
+    for(int x : tmp_ans)
+        ans.push_back(x);
+
     return true;
 }
+

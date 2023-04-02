@@ -32,15 +32,12 @@ int main() {
             for(int i = 0; i < size; i++) cout<<board[i];
             cout<<endl;
         }
-
-        fstream result = open_file("./data/result.txt", ios::out);
+        
         if(board == 0) {
             cout<<"AC!"<<endl;
-            result<<"AC";
         }
         else {
             cout<<"WA!"<<endl;
-            result<<"WA";
         }
         
     }  
