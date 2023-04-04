@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-// an IDS DFS
 bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
     if(board == 0 || cross_01_judge(board, ans, size, deep)) return true;
@@ -228,10 +227,11 @@ bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep
         }
     }
 
-    if(tmp_ans.size() > deep + 1) return false;
-    for(int x : tmp_ans)
+    if((int)tmp_ans.size() > deep) return false;
+    
+    for(int x : tmp_ans) {
         ans.push_back(x);
+    }
 
     return true;
 }
-

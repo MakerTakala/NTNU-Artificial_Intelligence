@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
             cout<<"doesn't support this algorithm!"<<endl;
             break;
         }
+
         
         // write the answer to out file
         fstream out = open_file("./data/out/" + to_string(i) + ".out", ios::out);
