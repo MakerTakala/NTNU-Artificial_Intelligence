@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
         
         // write the answer to out file
         fstream out = open_file("./data/out/" + to_string(i) + ".out", ios::out);
+        cout<<"Step: "<<ans.size()<<endl;
         cout<<"Ans: ";
         for(int x : ans) {
             out<<x<<" ";

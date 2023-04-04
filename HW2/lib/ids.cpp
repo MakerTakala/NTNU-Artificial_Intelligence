@@ -35,7 +35,7 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     
     //iterate the deep
     vector<int> ans;
-    for(int deep = 1; ; deep += 1) {
+    for(int deep = board.count(); ; deep += 1) {
         unordered_map<unsigned long long int, int> same;
         if(IDS_search(board, ans, same, deep, size)) return ans;
     }

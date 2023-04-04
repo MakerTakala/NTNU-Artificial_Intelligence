@@ -52,3 +52,10 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
 
     return rec_board;
 }
+
+void make_endgame_lib(unordered_map<unsigned long long int, vector<int>> &endgame_lib, bitset<MAX_SIZE> state, int size, int deep) {
+    if(deep == 0) return;
+    for(int i = 0; i < size; i++) {
+        
+    }
+}

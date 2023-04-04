@@ -1,40 +1,40 @@
 #include "./ida.h"
 #include "./help.h"
 
-long long int count_heurstic = 0;
-
 double guss(int x) {
-    return (1.0 / 5.0 * (sqrt((2.0 * M_PI)))) * exp(-((x * x) / 2.0));
+    double sigma = 5.0;
+    return 5.0 * (1.0 / sigma * (sqrt((2.0 * M_PI)))) * exp(-((x * x) / 2.0  * (sigma * sigma)));
 }
 
-int heurstic(bitset<MAX_SIZE> board, int size) {
-    count_heurstic++;
-    int sum = 0;
-    int lim1 = size / 3, lim2 = 2 * size / 3;
+int heurstic(bitset<MAX_SIZE> board, int size, vector<int> ans) {
+    int sum = 0, alive = board.count();
+    if(alive <= 1) return alive;
     for(int i = 0; i < size; i++) {
-        if(board[i] == 1 && lim1 <= i && i <= lim2) {
-            sum++;
+        if(board[i] == 1 && 0 < i && i < size - 1) {
+            sum += 2;
         }
     }
-    return sum + board.count();
+    return sum - 1;
 }
 
 int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
     if(board == 0) return 0;
-
+    
+    int h = heurstic(board, size, ans) + ans.size();
     // over the limited deep
-    if(deep < 0) return deep;
+    if(h > deep) return h;
 
-    if(!same.count(board.to_ullong())) same[board.to_ullong()] = INT_MIN;
-    if(same[board.to_ullong()] >= deep) return INT_MIN;
-    same[board.to_ullong()] = deep;
+    if(!same.count(board.to_ullong())) same[board.to_ullong()] = INT_MAX;
+    if(same[board.to_ullong()] < h) return INT_MAX;
+    same[board.to_ullong()] = h;
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
     
     // use deep_update to record the maxinum change
-    int deep_update = INT_MIN;
+    int deep_update = INT_MAX;
+
     // try to wipe out each cell
     for(int i = 0; i < size; i++) {
         bitset<MAX_SIZE> rm_board(next_board);
@@ -43,10 +43,10 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned 
             bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
             ans.push_back(i + 1);
 
-            int deep_diff = IDA_search(rec_board, ans, same, deep - heurstic(rec_board, size), size);
+            int deep_diff = IDA_search(rec_board, ans, same, deep, size);
             if(deep_diff == 0) return 0;
-            
-            deep_update = max(deep_update, deep_diff);
+            deep_update = min(deep_update, deep_diff);
+
             ans.pop_back();
         }
     }
@@ -59,15 +59,13 @@ vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
 
     //iterate the deep
     vector<int> ans;
-    for(int deep = heurstic(board, size); ;) {
+    for(int deep = heurstic(board, size, ans); ;) {
         unordered_map<unsigned long long int, int> same;
-        //cout<<deep<<" ";
         int deep_update = IDA_search(board, ans, same, deep, size);
         if(deep_update == 0) {
-            cout<<"times: "<<count_heurstic<<endl;
             return ans;
         }
-        deep -= deep_update;
+        deep = deep_update;
     }
     return vector<int>();
 }
