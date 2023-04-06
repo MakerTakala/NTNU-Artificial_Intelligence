@@ -16,14 +16,13 @@ fstream open_file(string file_path, ios_base::openmode permittion);
 bitset<MAX_SIZE> read_in_file(fstream &in, int &size);
 bitset<MAX_SIZE> spilt(bitset<MAX_SIZE> board, int size);
 bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  int size, int click);
-bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep);
 
 
 
 int main(int argc, char *argv[]) {
 
     // load input data
-    fstream in = open_file("../data/in/1.in", ios::in);
+    fstream in = open_file("./input.txt", ios::in);
     if(in.fail()) return 0;
 
     // read input
@@ -45,7 +44,7 @@ int main(int argc, char *argv[]) {
     unsigned long long int ns = 1000000;
     unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
 
-    fstream out = open_file("../data/out/1.out", ios::out);
+    fstream out = open_file("./output.txt", ios::out);
     out<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds."<<endl;
     if(ans.size() != 0) {
         out<<"An optional solution has "<<ans.size()<<" moves:"<<endl;
@@ -59,9 +58,10 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+// an IDS DFS
 bool IDS_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
-    if(board == 0 || cross_01_judge(board, ans, size, deep)) return true;
+    if(board == 0) return true;
     
     // over the limited deep
     if(deep == 0) return false;
@@ -92,7 +92,7 @@ vector<int> IDS(bitset<MAX_SIZE> board, size_t size) {
     
     //iterate the deep
     vector<int> ans;
-    for(int deep = 1; ; deep += 1) {
+    for(int deep = board.count(); ; deep += 1) {
         unordered_map<unsigned long long int, int> same;
         if(IDS_search(board, ans, same, deep, size)) return ans;
     }
@@ -141,97 +141,4 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
     if(size <= click + 2 || board[click + 2] == 0) rec_board[click + 1] = 0;
 
     return rec_board;
-}
-
-bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep) {
-    // filp the board
-    // why? beacuse I forget right and left should reverse but I don't want to fix all right and left
-    for(int i = 0; i < size / 2; i++) {
-        board[i] = board[i] ^ board[size - i - 1];
-        board[size - i - 1] = board[i] ^ board[size - i - 1];
-        board[i] = board[i] ^ board[size - i - 1];
-    }
-
-    int left = 0, right = size - 1;
-    while(board[left] == board[0]) left++;
-    while(board[right] == board[size - 1]) right--;
-    
-    if(left > right) return false;
-    
-    for(int i = left + 1; i <= right; i++) {
-        if((board[i] ^ board[i - 1]) == 0) return false;
-    }
-
-    bool left_all_0 = true, right_all_0 = true;
-    if(left != 0 && board[0] == 1) {
-        left_all_0 = false;
-        left--;
-    }
-    if(right != size - 1 && board[size - 1] == 1) {
-        right_all_0 = false;
-        right++;
-    }
-
-    vector<int> tmp_ans;
-
-    // 111 10101 111
-    if(left_all_0 == false && right_all_0 == false) {
-        int left_1_size = left, right_1_size = size - 1 - right;
-        if(left_1_size <= right_1_size) {
-            for(int i = left - 1; i >= 1; i--) {
-                tmp_ans.push_back(size - i);
-                left--;
-                right--;
-            }
-            left_all_0 = true;
-        }
-        else {
-            for(int i = right + 1; i <= size - 2; i++) {
-                tmp_ans.push_back(size - i);
-                left++;
-                right++;
-            }
-            right_all_0 = true;
-        }
-    }
-    // 111111 10101  or  111 10101 000
-    if(left_all_0 == false && right_all_0 == true) {
-        for(int i = left - 1; i >= 1; i--) {
-            tmp_ans.push_back(size - i);
-            left--;
-            if(right == size - 1) right = size - 2;
-            else right++;
-        }
-    }
-
-    // 10101 111111  or  000 10101 111
-    if(left_all_0 == true && right_all_0 == false) {
-        for(int i = right + 1; i <= size - 2; i++) {
-            tmp_ans.push_back(size - i);
-            right++;
-            if(left == 0) left = 1;
-            else left--;
-        }
-        
-    }
-    
-    // 000 10101 000
-    if(left <= size - 1 - right)  {
-        for(int i = left; i <= size - 2; i++) {
-            tmp_ans.push_back(size - i);
-        }
-    }
-    else {
-        for(int i = right; i >= 1; i--) {
-            tmp_ans.push_back(size - i);
-        }
-    }
-
-    if((int)tmp_ans.size() > deep) return false;
-    
-    for(int x : tmp_ans) {
-        ans.push_back(x);
-    }
-
-    return true;
 }
