@@ -21,7 +21,7 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
 int main(int argc, char *argv[]) {
 
     // load input data
-    fstream in = open_file("../data/in/1.in", ios::in);
+    fstream in = open_file("./input.txt", ios::in);
     if(in.fail()) return 0;
 
     // read input
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     unsigned long long int ns = 1000000;
     unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
 
-    fstream out = open_file("../data/out/1.out", ios::out);
+    fstream out = open_file("./output.txt", ios::out);
     out<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds."<<endl;
     if(ans.size() != 0) {
         out<<"An optional solution has "<<ans.size()<<" moves:"<<endl;
