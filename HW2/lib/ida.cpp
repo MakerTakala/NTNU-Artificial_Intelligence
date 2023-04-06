@@ -1,20 +1,13 @@
 #include "./ida.h"
 #include "./help.h"
 
-double guss(int x) {
-    double sigma = 5.0;
-    return 5.0 * (1.0 / sigma * (sqrt((2.0 * M_PI)))) * exp(-((x * x) / 2.0  * (sigma * sigma)));
-}
-
 int heurstic(bitset<MAX_SIZE> board, int size, vector<int> ans) {
     int sum = 0, alive = board.count();
     if(alive <= 1) return alive;
-    for(int i = 0; i < size; i++) {
-        if(board[i] == 1 && 0 < i && i < size - 1) {
-            sum += 2;
-        }
+    for(int i = 1; i < size - 1; i++) {
+        sum += (board[i] == 1) * 2;
     }
-    return sum - 1;
+    return sum;
 }
 
 int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
@@ -25,9 +18,10 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned 
     // over the limited deep
     if(h > deep) return h;
 
-    if(!same.count(board.to_ullong())) same[board.to_ullong()] = INT_MAX;
-    if(same[board.to_ullong()] < h) return INT_MAX;
-    same[board.to_ullong()] = h;
+    unsigned long long int state = board.to_ullong();
+    if(!same.count(state)) same[state] = INT_MAX;
+    if(same[state] < h) return INT_MAX;
+    same[state] = h;
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
