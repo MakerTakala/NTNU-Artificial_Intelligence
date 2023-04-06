@@ -2,7 +2,7 @@
 #include "./help.h"
 
 int heurstic(bitset<MAX_SIZE> board, int size, vector<int> ans) {
-    int sum = 0, alive = board.count();
+    int sum = 0, alive = board.count(), ans_size = ans.size();
     if(alive <= 1) return alive;
     for(int i = 1; i < size - 1; i++) {
         sum += (board[i] == 1) * 2;

@@ -10,14 +10,13 @@
 
 using namespace std;
 
-int heurstic(bitset<MAX_SIZE> board);
-int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, int deep, int size);
+int heurstic(bitset<MAX_SIZE> board, int size, vector<int> ans);
+int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size);
 vector<int> IDA(bitset<MAX_SIZE> board, size_t size);
 fstream open_file(string file_path, ios_base::openmode permittion);
 bitset<MAX_SIZE> read_in_file(fstream &in, int &size);
 bitset<MAX_SIZE> spilt(bitset<MAX_SIZE> board, int size);
 bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  int size, int click);
-bool cross_01_judge(bitset<MAX_SIZE> board, vector<int> &ans, int size, int deep);
 
 int main(int argc, char *argv[]) {
 
@@ -58,26 +57,34 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-int heurstic(bitset<MAX_SIZE> board) {
-    return board.count();
+int heurstic(bitset<MAX_SIZE> board, int size, vector<int> ans) {
+    int sum = 0, alive = board.count(), ans_size = ans.size();
+    if(alive <= 1) return alive;
+    for(int i = 1; i < size - 1; i++) {
+        sum += (board[i] == 1) * 2;
+    }
+    return sum;
 }
 
 int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned long long int, int> &same, int deep, int size) {
     // when all cell has been wipe out, find answer
     if(board == 0) return 0;
-
+    
+    int h = heurstic(board, size, ans) + ans.size();
     // over the limited deep
-    if(deep < 0) return deep;
+    if(h > deep) return h;
 
-    if(!same.count(board.to_ullong())) same[board.to_ullong()] = INT_MIN;
-    if(same[board.to_ullong()] >= deep) return INT_MIN;
-    same[board.to_ullong()] = deep;
+    unsigned long long int state = board.to_ullong();
+    if(!same.count(state)) same[state] = INT_MAX;
+    if(same[state] < h) return INT_MAX;
+    same[state] = h;
 
     // suppose all cell is split
     bitset<MAX_SIZE> next_board = spilt(board, size);
     
     // use deep_update to record the maxinum change
-    int deep_update = INT_MIN;
+    int deep_update = INT_MAX;
+
     // try to wipe out each cell
     for(int i = 0; i < size; i++) {
         bitset<MAX_SIZE> rm_board(next_board);
@@ -86,10 +93,10 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned 
             bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
             ans.push_back(i + 1);
 
-            int deep_diff = IDA_search(rec_board, ans, same, deep - (1 + heurstic(rec_board)), size);
+            int deep_diff = IDA_search(rec_board, ans, same, deep, size);
             if(deep_diff == 0) return 0;
-            
-            deep_update = max(deep_update, deep_diff);
+            deep_update = min(deep_update, deep_diff);
+
             ans.pop_back();
         }
     }
@@ -102,15 +109,16 @@ vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
 
     //iterate the deep
     vector<int> ans;
-    for(int deep = 1; ;) {
+    for(int deep = heurstic(board, size, ans); ;) {
         unordered_map<unsigned long long int, int> same;
-        int deep_update= IDA_search(board, ans, same, deep, size);
-        if(deep_update == 0) return ans;
-        deep -= deep_update;
+        int deep_update = IDA_search(board, ans, same, deep, size);
+        if(deep_update == 0) {
+            return ans;
+        }
+        deep = deep_update;
     }
     return vector<int>();
 }
-
 
 // use to opne file;
 fstream open_file(string file_path, ios_base::openmode permittion) {
@@ -128,6 +136,15 @@ bitset<MAX_SIZE> read_in_file(fstream &in, int &size) {
     }
     size = str.length();
     return bitset<MAX_SIZE>(str); 
+}
+
+vector<int> read_out_file(fstream &out) {
+    vector<int> ans;
+    int x;
+    while(out>>x) {
+        ans.push_back(x);
+    }
+    return ans;
 }
 
 // use to simulate all cells split
@@ -154,4 +171,11 @@ bitset<MAX_SIZE> recover(bitset<MAX_SIZE> board, bitset<MAX_SIZE> next_board,  i
     if(size <= click + 2 || board[click + 2] == 0) rec_board[click + 1] = 0;
 
     return rec_board;
+}
+
+void make_endgame_lib(unordered_map<unsigned long long int, vector<int>> &endgame_lib, bitset<MAX_SIZE> state, int size, int deep) {
+    if(deep == 0) return;
+    for(int i = 0; i < size; i++) {
+        
+    }
 }
