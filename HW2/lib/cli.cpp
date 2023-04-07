@@ -7,11 +7,6 @@ int heurstic(bitset<MAX_SIZE> board) {
 
 bool CLI_serch(bitset<MAX_SIZE> board, vector<int> &ans, size_t size) {
     while(1) {
-        // cout<<board<<endl;
-        // for(int x : ans) {
-        //     cout<<x<<" ";
-        // }
-        // cout<<endl;
         if(board == 0) return true;
 
         // suppose all cell is split
