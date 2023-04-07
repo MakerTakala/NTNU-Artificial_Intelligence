@@ -49,7 +49,7 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned 
 
 // run the IDA algorithm
 vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
-    if(size == 1) return vector<int>{1};
+    if(size == 0) return vector<int>();
 
     //iterate the deep
     vector<int> ans;

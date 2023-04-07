@@ -6,6 +6,7 @@
 #include "./lib/help.h"
 #include "./lib/ids.h"
 #include "./lib/ida.h"
+#include "./lib/cli.h"
 
 using namespace std;
 
@@ -41,7 +42,10 @@ int main(int argc, char *argv[]) {
         else if(string(argv[1]) == "IDA") {
             ans = IDA(board, size);
         }
-        else {
+        else if(string(argv[1]) == "CLI"){
+            ans = CLI(board, size);
+        }
+        else{
             cout<<"doesn't support this algorithm!"<<endl;
             break;
         }

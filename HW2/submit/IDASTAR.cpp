@@ -87,7 +87,6 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned 
 
     // try to wipe out each cell
     for(int i = 0; i < size; i++) {
-        bitset<MAX_SIZE> rm_board(next_board);
         if(board[i] == 1) {
             // if a cell be wipe out, recover the board 
             bitset<MAX_SIZE> rec_board = recover(board, next_board, size, i);
@@ -105,7 +104,7 @@ int IDA_search(bitset<MAX_SIZE> board, vector<int> &ans, unordered_map<unsigned 
 
 // run the IDA algorithm
 vector<int> IDA(bitset<MAX_SIZE> board, size_t size) {
-    if(size == 1) return vector<int>{1};
+    if(size == 0) return vector<int>();
 
     //iterate the deep
     vector<int> ans;
