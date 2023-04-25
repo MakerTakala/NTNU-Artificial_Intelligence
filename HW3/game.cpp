@@ -1,13 +1,29 @@
 #include <bits/stdc++.h>
 #include <fstream>
 #include <bitset>
+#include <vector>
 
 using namespace std;
 
 int n, m;
+class State {
+    public:
+        uint64_t board = 0;
+        pair<int, int> utility{INT_MIN, INT_MAX};
+        int amount[16] = {0};
+        
+        State(uint64_t _board) {
+            board = _board;
+        }
+};
+
+pair<int, int> maximize(State state);
+
 void show_board(uint64_t board);
 fstream open_file(string file_path, const ios_base::openmode permittion);
 uint64_t read_board(fstream &file);
+
+
 
 int main() {
     fstream in = open_file("./data/1.in", ios_base::in);
@@ -15,6 +31,18 @@ int main() {
     show_board(board);
 
     return 0;
+}
+
+pair<int, int> maximize(State state) {
+    if(state.board == 0) return {0, 0};
+    int max_choose = 0, choose = 0;
+    for(int i = 0; i < n + m; i++) {
+        if(max_choose < state.amount[i]) {
+            max_choose = state.amount[i];
+            choose = i;
+        }
+    }
+    return {0, 0};
 }
 
 void show_board(uint64_t board) {
