@@ -68,6 +68,7 @@
         "ids.h": "c",
         "queue": "cpp",
         "unordered_set": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "regex": "cpp"
     }
 }

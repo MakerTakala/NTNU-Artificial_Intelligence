@@ -1,4 +1,4 @@
 all: game
 
 game: game.cpp
-	g++ game.cpp -O3 -o game -std=c++17
+	g++ game.cpp -O3 -fsanitize=address -g -o game -std=c++17
