@@ -108,7 +108,6 @@ pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get)
 }
 
 pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get) {
-    //usleep(500 * 1000);
     if(board == 0) return {get.first - get.second, -1};
 
     int min_utility = INT_MAX, min_select = -1;
