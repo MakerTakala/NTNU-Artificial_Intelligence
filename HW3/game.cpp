@@ -3,6 +3,8 @@
 #include <fstream>
 #include <bitset>
 #include <vector>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 using namespace std;
 
@@ -30,6 +32,10 @@ int n, m;
 pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get);
 pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get);
 
+int start();
+void PVP(uint64_t board);
+void PVE(uint64_t board);
+int ONE(uint64_t board);
 void show(uint64_t board);
 int take_piece_amount(uint64_t board, uint64_t mask);
 uint64_t remove(uint64_t board, uint64_t mask);
@@ -38,48 +44,193 @@ uint64_t read_board(fstream &file);
 
 
 int main() {
+    system("clear");
+    int mode = start();
+
     fstream in = open_file("./data/1.in", ios_base::in);
     uint64_t init_board = (read_board(in));
     in.close();
-    
-    pair<int, int> get{0, 0};
-    vector<int> selects;
 
+     if(mode == 1) {
+        PVP(init_board);
+    }
+    if(mode == 2) {
+        PVE(init_board);
+    }
+    if(mode == 3) {
+        ONE(init_board);
+    }
+
+    return 0;
+}
+
+int start() {
+    int select;
+    cout<<"(1) PVP"<<endl;
+    cout<<"(2) PVE"<<endl;
+    cout<<"(3) One step(HW reqeust)"<<endl;
+    cout<<"(0) Exit"<<endl;
+    cout<<"Please select play mode: ";
+   
+
+    cin>>select;
+    if(select == 1 || select == 2 || select == 3) {
+        return select;
+    }
+    if(select != 0) cout<<"Wrong Input!"<<endl;
+    exit(0);
+}
+
+void PVP(uint64_t board) {
+    system("clear");
     int turn = 0;
-    while(init_board) {
-        show(init_board);
 
-        pair<int, int> ans = maximize(init_board, INT_MIN, INT_MAX, {0, 0});
-        int utility = ans.first, step = ans.second;
+    pair<int, int> get{0, 0};
 
-        cout<<"STEP: "<<step<<endl<<"Utility: "<<utility<<endl;
-        selects.push_back(step);
-
-        uint64_t next_board = remove(init_board, take_mask[step]);
-        int take = take_piece_amount(init_board, next_board);
-
+    while(board) {
+        cout<<endl<<"========================="<<endl;
+        cout<<"Player"<<turn + 1<<" round!"<<endl;
+        cout<<"Points: "<<"Player1: "<<get.first<<"     "<<"Player2: "<<get.second<<endl<<endl;
+        show(board);
+        cout<<"Recommand Step:"<<endl;
+        ONE(board);
+        cout<<"--------------------------"<<endl;
+        cout<<"Please input your choose: ";
+        int select = 0;
+        cin>>select;
+        if(select <= 0 || n + m < select) {
+            cout<<"Wrong Input!"<<endl;
+            exit(0);
+        }
+        if(select > n) select += (8 - n);
+        select--;
+        uint64_t next_board = remove(board, take_mask[select]);
+        int take = take_piece_amount(board, next_board);
+        system("clear");
+        cout<<"Player"<<turn + 1<<" get "<<take<<" piece!"<<endl;
         if(turn == 0) {
             get.first += take;
         }
         else {
             get.second += take;
         }
+        board = next_board;
         turn ^= 1;
+    }
 
-        init_board = next_board;
+    cout<<endl<<"========================="<<endl;
+    cout<<"Points: "<<"Player1: "<<get.first<<"     "<<"Player2: "<<get.second<<endl<<endl;
+    if(get.first > get.second) {
+        cout<<"Player1 WIN!"<<endl;
+    }
+    else if(get.first < get.second) {
+        cout<<"Player2 WIN!"<<endl;
+    }
+    else {
+        cout<<"TIE!"<<endl;
+    }
+}
+
+void PVE(uint64_t board) {
+    system("clear");
+    int turn = 0;
+
+    pair<int, int> get{0, 0};
+
+    while(board) {
+        cout<<endl<<"========================="<<endl;
+        if(turn == 1) {
+            cout<<"Computer round!"<<endl;
+        }
+        else {
+            cout<<"Player round!"<<endl;
+        }
+        cout<<"Points: "<<"Player: "<<get.first<<"     "<<"Computer: "<<get.second<<endl<<endl;
+        show(board);
+        cout<<"Recommand Step:"<<endl;
+        int ans = ONE(board);
+        cout<<"--------------------------"<<endl;
+        cout<<"Please input your choose: ";
+        int select = 0;
+        if(turn == 1) {
+            select = ans;
+            usleep(1000 * 1000);
+        }
+        else {
+            cin>>select;
+        }
         
+        if(turn == 0) {
+             if(select <= 0 || n + m < select) {
+                cout<<"Wrong Input!"<<endl;
+                exit(0);
+            }
+            if(select > n) select += (8 - n);
+            select--;
+        }
+        
+        uint64_t next_board = remove(board, take_mask[select]);
+        int take = take_piece_amount(board, next_board);
+        system("clear");
+        if(turn == 1) {
+            cout<<"Computer get "<<take<<" piece!"<<endl;
+        }
+        else {
+            cout<<"Player get "<<take<<" piece!"<<endl;
+        }
+        
+        if(turn == 0) {
+            get.first += take;
+        }
+        else {
+            get.second += take;
+        }
+        board = next_board;
+        turn ^= 1;
     }
 
-    cout<<endl<<endl<<"FIN:"<<endl;
-    for(int x : selects) {
-        cout<<x<<" ";
+    cout<<endl<<"========================="<<endl;
+    cout<<"Points: "<<"Player: "<<get.first<<"     "<<"Computer: "<<get.second<<endl<<endl;
+    if(get.first > get.second) {
+        cout<<"Player WIN!"<<endl;
     }
-    cout<<endl;
-    cout<<"GET: "<<get.first<<" "<<get.second<<endl;
+    else if(get.first < get.second) {
+        cout<<"Computer WIN!"<<endl;
+    }
+    else {
+        cout<<"TIE!"<<endl;
+    }
+}
 
+int ONE(uint64_t board) {
+    rusage start;
+    getrusage(RUSAGE_SELF, &start);
     
+    pair<int, int> ans = maximize(board, INT_MIN, INT_MAX, {0, 0});
 
-    return 0;
+    rusage end;
+    getrusage(RUSAGE_SELF, &end);
+
+    fstream out = open_file("./data/output.txt", ios_base::out);
+
+    if(ans.second < 8) {
+        out<<"Row#: "<<ans.second + 1<<endl;
+        cout<<"Row#: "<<ans.second + 1<<endl;
+    }
+    else {
+        out<<"Column#: "<<ans.second - 7<<endl;
+        cout<<"Column#: "<<ans.second - 7<<endl;
+    }
+    out<<ans.first<<" points"<<endl;
+    cout<<ans.first<<" points"<<endl;
+
+    unsigned long long int ns = 1000000;
+    unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
+    out<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds"<<endl<<endl;
+    cout<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds"<<endl<<endl;
+
+    out.close();
+    return ans.second;
 }
 
 pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get) {
@@ -134,9 +285,19 @@ pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get)
 
 
 void show(uint64_t board) {
+    cout<<"  ";
+    for(int i = n + 1; i <= n + m; i++) {
+        cout<<setiosflags(ios::left)<<setw(3)<<i;
+    }
+    cout<<endl<<" .";
+    for(int i = n + 1; i <= n + m; i++) {
+        cout<<"---";
+    }
+    cout<<endl;
     for(int i = 0; i < n; i++) {
+        cout<<setiosflags(ios::left)<<setw(1)<<i + 1<<"|";
         for(int j = 0; j < m; j++) {
-            cout<<(board & 1)<<" ";
+            cout<<(board & 1)<<"  ";
             board = (board>>1);
         }
         for(int j = 0; j < 8 - m; j++) {

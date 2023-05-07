@@ -1,32 +1,49 @@
 <script>
-	export let name;
-
+import Init from "./Init.svelte";
+	
+let state = 0;
+	
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
+	<div id="title">縱痕殺棋</div>
+	<Init />
 	
-	<input id="input_data">
+	<!-- <textarea id="data" type="text" placeholder="請輸入棋盤資料" cols="40" rows="5"></textarea> -->
+	
+	
+	
+
 </main>
 
 <style>
-	main {
+	#title {
 		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
 		text-transform: uppercase;
-		font-size: 4em;
+		font-size: 5em;
 		font-weight: 100;
+		letter-spacing: 0.5em;
+		font-family: 'Impact';
+		color: black;
+		margin: 50px;
 	}
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+	/* #data {
+		padding: 1em;
+		margin: 0 auto;
+
+		width: 500px;
+		height: 500px;
+		
+		display: flex;
+   		justify-content: center; 
+		align-items: center; 
+		text-align: center
+		
+		
+		
+		border-radius: 10px;
+
+	} */
+	
 </style>
