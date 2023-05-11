@@ -6,6 +6,16 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+/* 
+You can use makefile to compile the program by 'make'.
+In user interface, if you only want to cheak homework, you can use mode(3) One step.
+Othereise, you can play PVP and PVE mode
+*/
+// You can revise the file path if you want
+#define INPUT_PATH "./input2.txt"
+#define OUTPUT_PATH "./output.txt"
+
+
 using namespace std;
 
 uint64_t take_mask[16] = {
@@ -47,11 +57,11 @@ int main() {
     system("clear");
     int mode = start();
 
-    fstream in = open_file("./data/1.in", ios_base::in);
+    fstream in = open_file(INPUT_PATH, ios_base::in);
     uint64_t init_board = (read_board(in));
     in.close();
 
-     if(mode == 1) {
+    if(mode == 1) {
         PVP(init_board);
     }
     if(mode == 2) {
@@ -64,13 +74,14 @@ int main() {
     return 0;
 }
 
+// mode selection
 int start() {
     int select;
     cout<<"(1) PVP"<<endl;
     cout<<"(2) PVE"<<endl;
     cout<<"(3) One step(HW reqeust)"<<endl;
     cout<<"(0) Exit"<<endl;
-    cout<<"Please select play mode: ";
+    cout<<"Please select play mode(1-3): ";
    
 
     cin>>select;
@@ -81,18 +92,20 @@ int start() {
     exit(0);
 }
 
+// PVP mode
 void PVP(uint64_t board) {
     system("clear");
+
+    // recode player round
     int turn = 0;
 
+    // recode getting chese
     pair<int, int> get{0, 0};
 
     while(board) {
         cout<<endl<<"========================="<<endl;
         cout<<"Player"<<turn + 1<<" round!"<<endl;
         cout<<"Points: "<<"Player1: "<<get.first<<"     "<<"Player2: "<<get.second<<endl<<endl;
-        show(board);
-        cout<<"Recommand Step:"<<endl;
         ONE(board);
         cout<<"--------------------------"<<endl;
         cout<<"Please input your choose: ";
@@ -131,10 +144,14 @@ void PVP(uint64_t board) {
     }
 }
 
+//PVE mode
 void PVE(uint64_t board) {
-    system("clear");
+    //system("clear");
+
+    // recode player round
     int turn = 0;
 
+    // recode getting chese
     pair<int, int> get{0, 0};
 
     while(board) {
@@ -146,8 +163,6 @@ void PVE(uint64_t board) {
             cout<<"Player round!"<<endl;
         }
         cout<<"Points: "<<"Player: "<<get.first<<"     "<<"Computer: "<<get.second<<endl<<endl;
-        show(board);
-        cout<<"Recommand Step:"<<endl;
         int ans = ONE(board);
         cout<<"--------------------------"<<endl;
         cout<<"Please input your choose: ";
@@ -203,23 +218,30 @@ void PVE(uint64_t board) {
 }
 
 int ONE(uint64_t board) {
+    // recode start time
     rusage start;
     getrusage(RUSAGE_SELF, &start);
     
+    // get the answer
     pair<int, int> ans = maximize(board, INT_MIN, INT_MAX, {0, 0});
 
     rusage end;
     getrusage(RUSAGE_SELF, &end);
 
-    fstream out = open_file("./data/output.txt", ios_base::out);
+
+    // deal with output file
+    fstream out = open_file(OUTPUT_PATH, ios_base::out);
+
+    show(board);
+    cout<<"Recommand Step:"<<endl;
 
     if(ans.second < 8) {
         out<<"Row#: "<<ans.second + 1<<endl;
-        cout<<"Row#: "<<ans.second + 1<<endl;
+        cout<<"Row#: "<<ans.second + 1<<"("<<ans.second + 1<<")"<<endl;
     }
     else {
         out<<"Column#: "<<ans.second - 7<<endl;
-        cout<<"Column#: "<<ans.second - 7<<endl;
+        cout<<"Column#: "<<ans.second - 7<<"("<<ans.second + 1<<")"<<endl;
     }
     out<<ans.first<<" points"<<endl;
     cout<<ans.first<<" points"<<endl;
@@ -228,16 +250,19 @@ int ONE(uint64_t board) {
     unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
     out<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds"<<endl<<endl;
     cout<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds"<<endl<<endl;
-
     out.close();
     return ans.second;
 }
 
+// maximize node
 pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get) {
-    //usleep(500 * 1000);
+    // detect all chese are remove
     if(board == 0) return {get.first - get.second, -1};
 
+    // recode the high utility and correspond select
     int max_utility = INT_MIN, max_select = -1;
+
+    // try all step
     for(int i = 0; i < 16; i++) {
         uint64_t next_board = remove(board, take_mask[i]);
         int take = take_piece_amount(board, next_board);
@@ -250,7 +275,7 @@ pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get)
             max_utility = next_utility;
             max_select = i;
         }
-        
+
         if(max_utility >= beta) break;
 
         alpha = max(alpha, max_utility);
@@ -258,16 +283,21 @@ pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get)
     return {max_utility, max_select};
 }
 
+// minimize node
 pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get) {
+    // detect all chese are remove
     if(board == 0) return {get.first - get.second, -1};
 
+    // recode the lowest utility and correspond select
     int min_utility = INT_MAX, min_select = -1;
+
+    // try all step
     for(int i = 0; i < 16; i++) {
         uint64_t next_board = remove(board, take_mask[i]);
         int take = take_piece_amount(board, next_board);
+
         if(take == 0) continue;
         
-
         pair<int, int> next = maximize(next_board, alpha, beta, {get.first, get.second + take});
         int next_utility = next.first;
 
@@ -283,7 +313,7 @@ pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get)
     return {min_utility, min_select};
 }
 
-
+// show the board
 void show(uint64_t board) {
     cout<<"  ";
     for(int i = n + 1; i <= n + m; i++) {
@@ -308,16 +338,17 @@ void show(uint64_t board) {
     cout<<endl;
 }
 
+// remove the chese by mask
 uint64_t remove(uint64_t board, uint64_t mask){
     return board & mask;
 }
 
-int take_piece_amount(uint64_t board, uint64_t mask) {
+// use bit counting the count the number of moved chese
+int take_piece_amount(uint64_t board, uint64_t next_board) {
     int count = 0;
-    int n = board ^ mask;
-    while (n)
-    {
-        n = n & (n - 1);
+    uint64_t n = board ^ next_board;
+    while (n) {
+        n = (n & (n - 1));
         count++;
     }
     return count;
