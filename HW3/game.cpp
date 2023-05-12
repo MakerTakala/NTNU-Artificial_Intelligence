@@ -12,12 +12,13 @@ In user interface, if you only want to cheak homework, you can use mode(3) One s
 Othereise, you can play PVP and PVE mode
 */
 // You can revise the file path if you want
-#define INPUT_PATH "./input2.txt"
+#define INPUT_PATH "./input.txt"
 #define OUTPUT_PATH "./output.txt"
 
 
 using namespace std;
 
+// use to remove the piece
 uint64_t take_mask[16] = {
     0xFFFFFFFFFFFFFF00, 
     0xFFFFFFFFFFFF00FF, 
@@ -55,6 +56,7 @@ uint64_t read_board(fstream &file);
 
 int main() {
     system("clear");
+    // set the game mode
     int mode = start();
 
     fstream in = open_file(INPUT_PATH, ios_base::in);
@@ -73,6 +75,73 @@ int main() {
 
     return 0;
 }
+
+// maximize node
+pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get) {
+    // detect all chese are remove
+    if(board == 0) return {get.first - get.second, -1};
+
+    // recode the high utility and correspond select
+    int max_utility = INT_MIN, max_select = -1;
+
+    // try all step
+    for(int i = 0; i < 16; i++) {
+        //remove corresponded row or col  
+        uint64_t next_board = remove(board, take_mask[i]);
+        // counting how much piece are removed
+        int take = take_piece_amount(board, next_board);
+
+        if(take == 0) continue;
+
+        // recursion to minimize node
+        pair<int, int> next = minimize(next_board, alpha, beta, {get.first + take, get.second});
+        int next_utility = next.first;
+
+        if(next_utility > max_utility) {
+            max_utility = next_utility;
+            max_select = i;
+        }
+
+        if(max_utility >= beta) break;
+
+        alpha = max(alpha, max_utility);
+    }
+    return {max_utility, max_select};
+}
+
+// minimize node
+pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get) {
+    // detect all chese are remove
+    if(board == 0) return {get.first - get.second, -1};
+
+    // recode the lowest utility and correspond select
+    int min_utility = INT_MAX, min_select = -1;
+
+    // try all step
+    for(int i = 0; i < 16; i++) {
+        //remove corresponded row or col  
+        uint64_t next_board = remove(board, take_mask[i]);
+        // counting how much piece are removed
+        int take = take_piece_amount(board, next_board);
+
+        if(take == 0) continue;
+        
+        // recursion to maximize node
+        pair<int, int> next = maximize(next_board, alpha, beta, {get.first, get.second + take});
+        int next_utility = next.first;
+
+        if(next_utility < min_utility) {
+            min_utility = next_utility;
+            min_select = i;
+        }
+
+        if(min_utility <= alpha) break;
+
+        beta = min(beta, min_utility);
+    }
+    return {min_utility, min_select};
+}
+
 
 // mode selection
 int start() {
@@ -217,15 +286,15 @@ void PVE(uint64_t board) {
     }
 }
 
+// only apply one step
 int ONE(uint64_t board) {
     // recode start time
-    rusage start;
+    rusage start, end;;
     getrusage(RUSAGE_SELF, &start);
     
     // get the answer
     pair<int, int> ans = maximize(board, INT_MIN, INT_MAX, {0, 0});
 
-    rusage end;
     getrusage(RUSAGE_SELF, &end);
 
 
@@ -241,83 +310,29 @@ int ONE(uint64_t board) {
     }
     else {
         out<<"Column#: "<<ans.second - 7<<endl;
-        cout<<"Column#: "<<ans.second - 7<<"("<<ans.second + 1<<")"<<endl;
+        cout<<"Column#: "<<ans.second - 7<<"("<<ans.second - 7 + n<<")"<<endl;
     }
     out<<ans.first<<" points"<<endl;
     cout<<ans.first<<" points"<<endl;
 
+
+    // counting usage time
     unsigned long long int ns = 1000000;
-    unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
-    out<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds"<<endl<<endl;
-    cout<<"Total run time = "<<usage / ns<<"."<<usage % ns<<" seconds"<<endl<<endl;
+    unsigned long long int usage1 = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
+    unsigned long long int usage2 = (end.ru_stime.tv_sec - start.ru_stime.tv_sec) * ns + (end.ru_stime.tv_usec - start.ru_stime.tv_usec);
+    unsigned long long int usage = usage1 + usage2;
+
+    out<<"Total run time = "<<usage / ns<<"."<<setiosflags(ios::right)<<setw(6)<<setfill('0')<<usage % ns<<" seconds"<<endl;
+    cout<<"Total run time = "<<usage / ns<<"."<<setiosflags(ios::right)<<setw(6)<<setfill('0')<<usage % ns<<" seconds"<<endl<<endl;
     out.close();
     return ans.second;
-}
-
-// maximize node
-pair<int, int> maximize(uint64_t board, int alpha, int beta, pair<int, int> get) {
-    // detect all chese are remove
-    if(board == 0) return {get.first - get.second, -1};
-
-    // recode the high utility and correspond select
-    int max_utility = INT_MIN, max_select = -1;
-
-    // try all step
-    for(int i = 0; i < 16; i++) {
-        uint64_t next_board = remove(board, take_mask[i]);
-        int take = take_piece_amount(board, next_board);
-        if(take == 0) continue;
-
-        pair<int, int> next = minimize(next_board, alpha, beta, {get.first + take, get.second});
-        int next_utility = next.first;
-
-        if(next_utility > max_utility) {
-            max_utility = next_utility;
-            max_select = i;
-        }
-
-        if(max_utility >= beta) break;
-
-        alpha = max(alpha, max_utility);
-    }
-    return {max_utility, max_select};
-}
-
-// minimize node
-pair<int, int> minimize(uint64_t board, int alpha, int beta, pair<int, int> get) {
-    // detect all chese are remove
-    if(board == 0) return {get.first - get.second, -1};
-
-    // recode the lowest utility and correspond select
-    int min_utility = INT_MAX, min_select = -1;
-
-    // try all step
-    for(int i = 0; i < 16; i++) {
-        uint64_t next_board = remove(board, take_mask[i]);
-        int take = take_piece_amount(board, next_board);
-
-        if(take == 0) continue;
-        
-        pair<int, int> next = maximize(next_board, alpha, beta, {get.first, get.second + take});
-        int next_utility = next.first;
-
-        if(next_utility < min_utility) {
-            min_utility = next_utility;
-            min_select = i;
-        }
-
-        if(min_utility <= alpha) break;
-
-        beta = min(beta, min_utility);
-    }
-    return {min_utility, min_select};
 }
 
 // show the board
 void show(uint64_t board) {
     cout<<"  ";
     for(int i = n + 1; i <= n + m; i++) {
-        cout<<setiosflags(ios::left)<<setw(3)<<i;
+        cout<<setfill(' ')<<setiosflags(ios::left)<<setw(3)<<i;
     }
     cout<<endl<<" .";
     for(int i = n + 1; i <= n + m; i++) {
