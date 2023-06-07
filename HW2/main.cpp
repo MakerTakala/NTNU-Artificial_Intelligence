@@ -67,8 +67,11 @@ int main(int argc, char *argv[]) {
         getrusage(RUSAGE_SELF, &end);
 
         unsigned long long int ns = 1000000;
-        unsigned long long int usage = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
-        cout<<"Usage time: "<<usage / ns<<"."<<usage % ns<<"s"<<endl<<endl;
+    unsigned long long int usage1 = (end.ru_utime.tv_sec - start.ru_utime.tv_sec) * ns + (end.ru_utime.tv_usec - start.ru_utime.tv_usec);
+    unsigned long long int usage2 = (end.ru_stime.tv_sec - start.ru_stime.tv_sec) * ns + (end.ru_stime.tv_usec - start.ru_stime.tv_usec);
+    unsigned long long int usage = usage1 + usage2;
+
+    cout<<"Total run time = "<<usage / ns<<"."<<setiosflags(ios::right)<<setw(6)<<setfill('0')<<usage % ns<<" seconds"<<endl<<endl;
     }  
     
     return 0;
