@@ -1,0 +1,19 @@
+Row#: 3
+3 points
+Total run time = 0.000011 seconds
+
+Row#: 1
+0 points
+Total run time = 0.000009 seconds
+
+Column#: 4
+2 points
+Total run time = 0.000200 seconds
+
+Row#: 3
+2 points
+Total run time = 0.004116 seconds
+
+Row#: 6
+4 points
+Total run time = 0.023515 seconds
